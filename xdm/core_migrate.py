@@ -21,6 +21,8 @@
 
 import tasks
 from xdm import common
+from peewee import *
+from peewee import QueryCompiler
 
 
 def migrate_0_4_19():
@@ -33,3 +35,11 @@ def migrate_0_4_19():
         for element in mtm.getElementsWithStatusIn(common.getCompletedStatuses()):
             common.SM.setNewMessage("Migration: Updating %s (not recaching images)" % element)
             tasks.updateElement(element)
+
+def migrate_0_4_20():
+    from xdm.classes import Config
+    field = QueryCompiler().field_sql(Config._value_data)
+    table = Config._meta.db_table
+    if Config._checkForColumn(Config._value_data):
+        return False # False like: dude stop !
+    Config._meta.database.execute_sql('ALTER TABLE %s ADD COLUMN %s' % (table, field))

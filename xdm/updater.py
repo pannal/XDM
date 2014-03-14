@@ -99,6 +99,13 @@ class CoreUpdater(object):
             migrate_0_4_19()
         # add more migrate function calls here
 
+        if last_known_version < (0, 4, 20) <= cur_version:
+            msg = "Running migrate function migrate_0_4_20"
+            common.SM.setNewMessage('###########<br>Migration: %s' % msg)
+            log.info(msg)
+            self.backupDatabases('pre-0.4.20-migration')
+            migrate_0_4_20()
+
         # send out messages if we updated only if it was a autoupdate
         if last_known_version < cur_version and xdm.common.SYSTEM.c.auto_update_core:
             common.MM.createInfo('Update to version %s complete' % xdm.common.getVersionHuman(), role="coreUpdate")

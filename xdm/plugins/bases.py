@@ -130,10 +130,13 @@ class Plugin(object):
         # method wrapping
         methodList = [method for method in self.getMethods() if not method.startswith('_')]
 
+        #fixme: make this inheritable?
         for method_name in methodList:
             alternative = getattr(super(self.__class__, self), method_name)
             method = getattr(self, method_name)
             setattr(self, method_name, pluginMethodWrapper(self.name, method, alternative))
+
+        self._initialized()
 
     def _get_enabled(self):
         return self.c.enabled
@@ -261,6 +264,9 @@ class Plugin(object):
 
     def __str__(self):
         return self.name
+
+    def _initialized(self):
+        pass
 
     def _get_plugin_file_path(self):
         return os.path.abspath(__file__)
@@ -582,7 +588,7 @@ class Indexer(DownloadTyped):
         if game.additional_search_terms != None:
             terms = [x.strip() for x in game.additional_search_terms.split(',')]
 
-        terms.append(re.sub('[ ]*\(\d{4}\)', '', replace_all(game.name)))
+        terms.append(re.sub('[ /]*\(\d{4}\)', '', replace_all(game.name)))
         log("Search terms for %s are %s" % (self.name, terms))
         return terms
 
